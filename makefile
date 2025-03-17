@@ -9,10 +9,10 @@ clean:
 	rm -s *.gch
 
 main.o:  main.c
-	$(CC) $(CC_FLAGS) -c main.c -o ./build/main.o
+	$(CC) $(CC_FLAGS) $(DEBUG) -c main.c -o ./build/main.o
 
 basic.o: basic.s
-	$(CC) -c basic.s -o ./build/basic.o
+	$(CC) $(DEBUG) -c basic.s -o ./build/basic.o
 
 ctest: basic.o main.o
-	$(CC) $(LD_FLAGS) ./build/main.o ./build/basic.o -o ./build/ctest
+	$(CC) $(LD_FLAGS) $(DEBUG) ./build/main.o ./build/basic.o -o ./build/ctest
