@@ -4,9 +4,9 @@ LD_FLAGS = -lm
 DEBUG = -ggdb3
 
 clean:
-	rm -s *.o
-	rm -s ./build/*
-	rm -s *.gch
+	rm ./build/*
+	rm *.o
+	rm *.gch
 
 main.o:  main.c
 	$(CC) $(CC_FLAGS) $(DEBUG) -c main.c -o ./build/main.o
