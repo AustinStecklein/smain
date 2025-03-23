@@ -4,13 +4,18 @@
 
 #include "../cmain/unittest.h"
 #include "../cmain/arena.h"
+#include "../cmain/array.h"
 
 extern uint64_t addValues64(const uint64_t a, const uint64_t b);
 extern int addValues32(const int a, const int b);
-extern int *twoSumN2(int *nums, int numsSize, int target, int *returnSize);
 
+/*
+ * this is the "naive" solution for two sum but for our purposes is actually
+ * faster since we don't have that large of arrays.
+ */
+extern int *twoSumN2(int *nums, int numsSize, int target, int *returnSize);
 int *twoSumN2C(int *nums, int numsSize, int target, int *returnSize) {
-    // This is the same function as the two_sum_n2 but in c.
+    // This is the same function as the twoSumN2 but in c.
     // This allows me to compare my implementation and gcc's
     (*returnSize) = 0;
     for (int i = 0; i < numsSize; i++) {
