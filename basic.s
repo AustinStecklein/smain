@@ -1,9 +1,9 @@
-.globl add_values64, add_values32, two_sum_n2
+.globl addValues64, addValues32, twoSumN2
 # Note that we are not using that gross intel syntax
 .intel_syntax noprefix
 .section .text
     # add two values function uint64_t add_values(const uint64_t a, const uint64_t b);
-add_values64:
+addValues64:
     # grab the arguments directly from regs for SPEED
     xor rax, rax
     mov rax, rdi
@@ -12,7 +12,7 @@ add_values64:
     ret
 
     # add two values function int add_values(const int a, const int b);
-add_values32:
+addValues32:
     # grab the arguments directly from regs for SPEED
     xor eax, eax
     mov eax, edi
@@ -22,7 +22,7 @@ add_values32:
 
     # leetcode add two numbers problem with n^2 solution
     # int* two_sum_n2(int * nums, int numsSize, int target, int* returnSize)
-two_sum_n2:
+twoSumN2:
     # move parameters to gprs or the stack
     push rbp
     mov rbp, rsp
