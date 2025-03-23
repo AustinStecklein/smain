@@ -13,8 +13,8 @@ extern int addValues32(const int a, const int b);
  * this is the "naive" solution for two sum but for our purposes is actually
  * faster since we don't have that large of arrays.
  */
-extern int *twoSumN2(int *nums, int numsSize, int target, int *returnSize);
-int *twoSumN2C(int *nums, int numsSize, int target, int *returnSize) {
+extern int *twoSumN2(int *nums, int numsSize, int target, int *returnSize, struct Arena *allocator);
+int *twoSumN2C(int *nums, int numsSize, int target, int *returnSize, struct Arena *allocator) {
     // This is the same function as the twoSumN2 but in c.
     // This allows me to compare my implementation and gcc's
     (*returnSize) = 0;
@@ -23,7 +23,7 @@ int *twoSumN2C(int *nums, int numsSize, int target, int *returnSize) {
             int guess = nums[i] + nums[j];
             if (guess == target) {
                 (*returnSize) = 2;
-                int *indexs = malloc(sizeof(int) * 2);
+                int *indexs = mallocArena(&allocator, sizeof(int) * 2);
                 indexs[0] = i;
                 indexs[1] = j;
                 return indexs;
@@ -42,14 +42,14 @@ void testAddValues(struct Arena *) {
 void testTwoSumn2(struct Arena * arena) {
     int nums[4] = {1, 2, 3, 5};
     int *returnSize1 = mallocArena(&arena, sizeof(int));
-    int *returnNums1 = twoSumN2(nums, 4, 5, returnSize1);
+    int *returnNums1 = twoSumN2(nums, 4, 5, returnSize1, arena);
     ASSERT_TRUE(*returnSize1 == 2, "Check returned size");
     ASSERT_TRUE(returnNums1[0] == 1, "check first index");
     ASSERT_TRUE(returnNums1[1] == 2, "check second index");
 
     int nums2[7] = {1, 20, 3, 5, 11, 14, 11};
     int *returnSize2 = mallocArena(&arena, sizeof(int));
-    int *returnNums2 = twoSumN2(nums2, 7, 10, returnSize2);
+    int *returnNums2 = twoSumN2(nums2, 7, 10, returnSize2, arena);
     ASSERT_TRUE(*returnSize2 == 0, "Check returned size");
     // safe to assume that this unit test is not running
     // on a system where 0 is not the null prt
@@ -57,7 +57,7 @@ void testTwoSumn2(struct Arena * arena) {
 
     int nums3[6] = {100, 562, 689, 654, 1000, 56};
     int *returnSize3 = mallocArena(&arena, sizeof(int));
-    int *returnNums3 = twoSumN2(nums3, 6, 1654, returnSize3);
+    int *returnNums3 = twoSumN2(nums3, 6, 1654, returnSize3, arena);
     ASSERT_TRUE(*returnSize3 == 2, "Check returned size");
     ASSERT_TRUE(returnNums3[0] == 3, "check first index");
     ASSERT_TRUE(returnNums3[1] == 4, "check second index");
@@ -66,14 +66,14 @@ void testTwoSumn2(struct Arena * arena) {
 void testTwoSumC(struct Arena * arena) {
     int nums[4] = {1, 2, 3, 5};
     int *returnSize1 = mallocArena(&arena, sizeof(int));
-    int *returnNums1 = twoSumN2C(nums, 4, 5, returnSize1);
+    int *returnNums1 = twoSumN2C(nums, 4, 5, returnSize1, arena);
     ASSERT_TRUE(*returnSize1 == 2, "Check returned size");
     ASSERT_TRUE(returnNums1[0] == 1, "check first index");
     ASSERT_TRUE(returnNums1[1] == 2, "check second index");
 
     int nums2[7] = {1, 20, 3, 5, 11, 14, 11};
     int *returnSize2 = mallocArena(&arena, sizeof(int));
-    int *returnNums2 = twoSumN2C(nums2, 7, 10, returnSize2);
+    int *returnNums2 = twoSumN2C(nums2, 7, 10, returnSize2, arena);
     ASSERT_TRUE(*returnSize2 == 0, "Check returned size");
     // safe to assume that this unit test is not running
     // on a system where 0 is not the null prt
@@ -81,7 +81,7 @@ void testTwoSumC(struct Arena * arena) {
 
     int nums3[6] = {100, 562, 689, 654, 1000, 56};
     int *returnSize3 = mallocArena(&arena, sizeof(int));
-    int *returnNums3 = twoSumN2C(nums3, 6, 1654, returnSize3);
+    int *returnNums3 = twoSumN2C(nums3, 6, 1654, returnSize3, arena);
     ASSERT_TRUE(*returnSize3 == 2, "Check returned size");
     ASSERT_TRUE(returnNums3[0] == 3, "check first index");
     ASSERT_TRUE(returnNums3[1] == 4, "check second index");

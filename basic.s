@@ -21,17 +21,18 @@ addValues32:
     ret
 
     # leetcode add two numbers problem with n^2 solution
-    # int* two_sum_n2(int * nums, int numsSize, int target, int* returnSize)
+    # int* two_sum_n2(int * nums, int numsSize, int target, int* returnSize, struct Arena allocator)
 twoSumN2:
     # move parameters to gprs or the stack
     push rbp
     mov rbp, rsp
-    sub rsp, 0x40
+    sub rsp, 0x50
     mov qword ptr [rsp], rdi # int * nums
     mov dword ptr [rsp+0x08], esi # int numsSize
     mov dword ptr [rsp+0x10], edx # int target
     mov dword ptr [rcx], 0
     mov qword ptr [rsp+0x20], rcx # int target
+    mov qword ptr [rsp+0x30], r8 # struct Arena allocator
 
     # default to a null ptr
     mov rax, 0x0
@@ -68,19 +69,20 @@ twoSumN2:
 .target:
     # this means the current r8 & r9 are valid
     # get some memory the return array
-    mov dword ptr [rsp + 0x30], r8d
-    mov dword ptr [rsp + 0x34], r9d
-    mov rdi, 8
-    call malloc
+    mov dword ptr [rsp + 0x40], r8d
+    mov dword ptr [rsp + 0x44], r9d
+    lea rdi, [rsp + 0x30]
+    mov rsi, 8
+    call mallocArena
     mov rcx, qword ptr [rsp + 0x20]
     mov dword ptr [rcx], 2
-    mov r8d, dword ptr [rsp + 0x30]
-    mov r9d, dword ptr [rsp + 0x34]
+    mov r8d, dword ptr [rsp + 0x40]
+    mov r9d, dword ptr [rsp + 0x44]
     mov dword ptr [rax], r8d
     mov dword ptr [rax+4], r9d
 
     # cleanup and return
 .cleanup:
-    add rsp, 0x40
+    add rsp, 0x50
     pop rbp
     ret
