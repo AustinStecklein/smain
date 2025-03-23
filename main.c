@@ -23,7 +23,7 @@ int *twoSumN2C(int *nums, int numsSize, int target, int *returnSize) {
             int guess = nums[i] + nums[j];
             if (guess == target) {
                 (*returnSize) = 2;
-                int *indexs = malloc(sizeof(int));
+                int *indexs = malloc(sizeof(int) * 2);
                 indexs[0] = i;
                 indexs[1] = j;
                 return indexs;
