@@ -33,13 +33,9 @@ two_sum_n2:
     mov dword ptr [rcx], 0
     mov qword ptr [rsp+0x20], rcx # int target
 
+    # default to a null ptr
+    mov rax, 0x0
 
-    # get some memory the return array
-    mov rdi, 8
-    call malloc
-    mov qword ptr [rsp+0x30], rax # don't check if malloc failed cause I don't know how to do that
-
-    mov rcx, qword ptr [rsp + 0x20]
     # double loop through nums until a combo equals the target
     xor r8, r8  # i
     sub r8, 1
@@ -71,8 +67,15 @@ two_sum_n2:
 
 .target:
     # this means the current r8 & r9 are valid
-    lea rax, qword ptr [rsp+0x30]
+    # get some memory the return array
+    mov dword ptr [rsp + 0x30], r8d
+    mov dword ptr [rsp + 0x34], r9d
+    mov rdi, 8
+    call malloc
+    mov rcx, qword ptr [rsp + 0x20]
     mov dword ptr [rcx], 2
+    mov r8d, dword ptr [rsp + 0x30]
+    mov r9d, dword ptr [rsp + 0x34]
     mov dword ptr [rax], r8d
     mov dword ptr [rax+4], r9d
 
