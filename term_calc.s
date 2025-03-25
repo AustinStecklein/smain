@@ -36,6 +36,10 @@ toString:
     mov dword [r9], 0x0a ; always end will a null terminated string
     dec r9
     mov byte [r9], 0x30 ; default case that the value is 0
+    xor r11, r11
+    cmp edi, 0x0
+    je .zero_found
+    jl .negative_found
 
 .loop:
     cmp edi, 0x0
@@ -58,14 +62,32 @@ toString:
     SUB     edi, eax ; result is in r8
     ; end of % operation
 
-    mov r11d, edi
-    add r11d, "0" ; convert to string
-    mov byte [r9], r11b
+    add dil, "0" ; convert to string
+    mov byte [r9], dil
     mov edi, edx
     dec r9
     jmp .loop
 
+.negative_found:
+    ; convert the negative signed number to the
+    ; value of an unsigned number to get the positive
+    ; representation
+    mov ecx, 0xFFFFFFFF
+    xor ecx, edi
+    inc ecx
+    mov edi, ecx
+    or r11, 0x1
+    jmp .loop
+
+.add_negative:
+    mov byte [r9], 0x2D ; - sign
+    mov r11, 0x0
+.zero_found:
+    dec r9
+
 .end:
+    cmp r11, 0x1
+    je .add_negative
     mov rax, r9
     mov r9, r10
     add r9, rsi
@@ -82,18 +104,24 @@ getInt:
     xor r8, r8 ; zero out the result
     mov r9b, byte [rdi]
 
+    ; spaces can on be in front of a number
+    ; meaning that spaces can not follow a number
+    xor r10, r10 ; number found flag
+
 .loop:
     ; This case should inc dil but not count towards the value
     ; This means that something like 4 0 + 4 is valid and right
     ; now I think I am fine with that
     cmp r9b, ' '
-    je .reset
+    je .space_found
 
     ; check that the char is between 0 and 9
     cmp r9b, '0'
     jb .leave
     cmp r9b, '9'
     ja .leave
+
+    or r10, 0x1
 
     ; add string digit to sum
     SUB r9b, '0'
@@ -105,13 +133,12 @@ getInt:
     inc dil
     inc rax
     mov r9b, byte [rdi]
-
     jmp .loop
 
 .space_found:
-    inc dil
-    inc rax
-    jmp .loop
+    cmp r10, 0x1
+    je .leave
+    jmp .reset
 
 .leave:
     mov [rsi], r8
@@ -252,11 +279,11 @@ termCalc:
     jmp .user_input
 
 .add_op:
-    add r10, r11
+    add r10d, r11d
     jmp .print_value
 
 .sub_op:
-    SUB r10, r11
+    SUB r10d, r11d
     jmp .print_value
 
 .print_value:
