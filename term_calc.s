@@ -72,10 +72,8 @@ toString:
     ; convert the negative signed number to the
     ; value of an unsigned number to get the positive
     ; representation
-    mov ecx, 0xFFFFFFFF
-    xor ecx, edi
-    inc ecx
-    mov edi, ecx
+    xor edi, 0xFFFFFFFF
+    inc edi
     or r11, 0x1
     jmp .loop
 
@@ -100,20 +98,20 @@ toString:
 ; string to the char one position after the found digits
 getInt:
     mov rax, 0x0; default to zero bytes iterated
-    mov r8, [rsi]
     xor r8, r8 ; zero out the result
     mov r9b, byte [rdi]
 
     ; spaces can on be in front of a number
     ; meaning that spaces can not follow a number
     xor r10, r10 ; number found flag
+    xor rcx, rcx ; negative found flag
 
 .loop:
-    ; This case should inc dil but not count towards the value
-    ; This means that something like 4 0 + 4 is valid and right
-    ; now I think I am fine with that
     cmp r9b, ' '
     je .space_found
+
+    cmp r9b, '-'
+    je .negative_found
 
     ; check that the char is between 0 and 9
     cmp r9b, '0'
@@ -125,7 +123,7 @@ getInt:
 
     ; add string digit to sum
     SUB r9b, '0'
-    imul r8, 10
+    imul r8d, 10
     add r8d, r9d
 
 .reset:
@@ -140,8 +138,23 @@ getInt:
     je .leave
     jmp .reset
 
+.negative_found:
+    ; founding a negative is fine as long as a number
+    ; has not been found yet
+    cmp r10, 0x1
+    je .leave
+    or rcx, 0x1
+    jmp .reset
+
+.convert_int:
+    xor r8d, 0xFFFFFFFF
+    inc r8d
+    mov rcx, 0x0
+
 .leave:
-    mov [rsi], r8
+    cmp rcx, 0x1
+    je .convert_int
+    mov dword [rsi], r8d
     ret
 
 
