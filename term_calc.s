@@ -31,43 +31,46 @@ SECTION .text
 toString:
     ; an int cannot produce a bytes char string so no need to add size checks
     ; the string will be build in the inverse order that is needed.
-    mov r9, rdx ; get size of the string buffer
-    lea r9, [rsi + r9] ; this puts us at the end of the buffer
-    mov dword [r9], 0x30 ; default case that the value is 0
-    xor r10, r10
+    mov r10, rdx ; get size of the string buffer
+    lea r9, [rsi + r10] ; this puts us at the end of the buffer
+    mov dword [r9], 0x0a ; always end will a null terminated string
+    dec r9
+    mov byte [r9], 0x30 ; default case that the value is 0
 
 .loop:
-    mov r8d, edi
-    cmp r8d, 0x0
+    cmp edi, 0x0
     jle .end
     ; this is straight from the godbolt compiler cause I didn't want
     ; to figure out fast int division right now
-    mov     ecx, r8d
-    movsx   rax, r8d
+    mov     ecx, edi
+    movsx   rax, edi
     imul    rax, rax, 1717986919
     shr     rax, 32
     mov     edx, eax
-    sar     edx, 2
-    mov     eax, r8d
+    sar     edx, 2 ; this is the result of the division
+    mov     eax, edi
     sar     eax, 31
     SUB     edx, eax
     mov     eax, edx
     sal     eax, 2
     add     eax, edx
     add     eax, eax
-    SUB     r8d, eax ; result is in r8
+    SUB     edi, eax ; result is in r8
     ; end of % operation
 
-    mov r11d, r8d
+    mov r11d, edi
     add r11d, "0" ; convert to string
-    SUB r9, r10
-    mov dword [r9], r11d
-    lea r9, [rsi + r9] ; this puts us at the end of the buffer
-    SUB edi, r11d
-    inc r10
+    mov byte [r9], r11b
+    mov edi, edx
+    dec r9
+    jmp .loop
 
 .end:
-    mov rax, r10
+    mov rax, r9
+    mov r9, r10
+    add r9, rsi
+    SUB r9, rax ; this gives us the total amount of space taken
+    mov rax, r9
     ret
 
 ; int(number of bytes it took from) getInt(char * string, int * output)
@@ -80,6 +83,12 @@ getInt:
     mov r9b, byte [rdi]
 
 .loop:
+    ; This case should inc dil but not count towards the value
+    ; This means that something like 4 0 + 4 is valid and right
+    ; now I think I am fine with that
+    cmp r9b, ' '
+    je .reset
+
     ; check that the char is between 0 and 9
     cmp r9b, '0'
     jb .leave
@@ -91,11 +100,17 @@ getInt:
     imul r8, 10
     add r8d, r9d
 
+.reset:
     ; reset state
     inc dil
     inc rax
     mov r9b, byte [rdi]
 
+    jmp .loop
+
+.space_found:
+    inc dil
+    inc rax
     jmp .loop
 
 .leave:
@@ -253,9 +268,11 @@ termCalc:
     mov edx, eax            ; length of the message
     mov eax, write          ; syscall number for write
     mov edi, stdout         ; file descriptor stdout
+
+    ; configure output buffer
     mov esi, output
     add esi, bufferLen
-    mov r11d, eax
+    mov r11d, edx
     dec r11d
     SUB esi, r11d
     syscall
