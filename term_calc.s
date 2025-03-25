@@ -1,4 +1,14 @@
 GLOBAL _start
+; This was a basic program to get my feet wet in larger scale assembly programs
+; other than single functions. The general idea is to have a terminal program
+; to do basic calculator operations. I say basic since implementing a full
+; on calculator with no deps was not the scope of this project. So all
+; operations are done with signed ints and it only supports one operator (+ or -)
+; and two operands. I might extend this in the future to support more operators
+; and more operands. However lots of good parsing is done with the current format
+; Spaces are ignored as long as it does not make an illegal sequence like 40 -> 4 0
+; and negative signs in front of numbers do negate the number. So this sequence is
+; legal -356 + -561 or - 56 + - 58
 
 ; nasm defines for quality of life constants
 %define bufferLen 256
