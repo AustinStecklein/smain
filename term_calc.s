@@ -182,6 +182,12 @@ getOp:
     mov dword [rsi], 0x2
     cmp r9b, '-'
     je .found
+    mov dword [rsi], 0x3
+    cmp r9b, '*'
+    je .found
+    mov dword [rsi], 0x4
+    cmp r9b, '/'
+    je .found
 
     ; no op found
     mov rax, 0x0
@@ -290,6 +296,12 @@ termCalc:
     cmp dword [rsp + 0x18], 0x02
     je .sub_op
 
+    cmp dword [rsp + 0x18], 0x03
+    je .mult_op
+
+    cmp dword [rsp + 0x18], 0x04
+    je .div_op
+
     ; jump forever
     jmp .user_input
 
@@ -307,6 +319,17 @@ termCalc:
 
 .sub_op:
     SUB r10d, r11d
+    jmp .print_value
+
+.mult_op:
+    imul r10d, r11d
+    jmp .print_value
+
+.div_op:
+    mov rdx, 0
+    mov eax, r10d
+    div r11d
+    mov r10d, eax
     jmp .print_value
 
 .print_value:
